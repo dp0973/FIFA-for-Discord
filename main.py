@@ -7,7 +7,7 @@ import asyncio
 bot = commands.Bot(command_prefix='[')
 
 headers={
-    'x-rapidapi-key': os.environ(['APIKEY']),
+    'x-rapidapi-key': os.environ['APIKEY'],
     'x-rapidapi-host': "api-football-v1.p.rapidapi.com"
 }
 
@@ -135,5 +135,5 @@ async def embed(ctx):
     embed.add_field(name='j', value='Success')
     await ctx.send(embed=embed)
 
-bot.run(os.environ(['TOKEN']))
+bot.run(os.environ['TOKEN'])
 bot.remove_command('help')
