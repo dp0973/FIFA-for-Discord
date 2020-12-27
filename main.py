@@ -7,7 +7,7 @@ import asyncio
 bot = commands.Bot(command_prefix='[')
 
 headers={
-    'x-rapidapi-key': os.environ['APIKEY'],
+    'x-rapidapi-key': os.environ(['APIKEY']),
     'x-rapidapi-host': "api-football-v1.p.rapidapi.com"
 }
 
@@ -18,20 +18,23 @@ async def on_ready():
 
 @bot.command()
 async def searchp(ctx, arg):
+    argbckup = arg.title()
     arg = arg.replace(' ', '%20')
+    embed = discord.Embed(title=f':mag_right: Search Results: {argbckup} (?/?)', color=discord.Color.green(), description='Loading...')
+    sended = await ctx.send(embed=embed)
     url = "https://api-football-v1.p.rapidapi.com/v2/players/search/"+arg
     response = requests.request("GET", url, headers=headers).json()
     result_num = response['api']['results']
     if result_num == 0:
-        embed = discord.Embed(title=f':mag_right: {arg} Search', color=discord.Color.red(), description=':x: I couldn\'t find any player...')
-        await ctx.send(embed=embed)
+        embed = discord.Embed(title=f':mag_right: Search Results: {argbckup} (0/0)', color=discord.Color.red(), description='None')
+        await sended.edit(embed=embed)
         return None
     embed = []
     j = 0
     if result_num % 12 == 0: embed_num = result_num / 12
     else: embed_num = int(result_num / 12) + 1
     for i in range(0, embed_num):
-        embed.append(discord.Embed(title=f':mag_right: Search Results: {arg} ({i+1}/{embed_num})', color=discord.Color.green(), description=f'I found {result_num} players!'))
+        embed.append(discord.Embed(title=f':mag_right: Search Results: {argbckup} ({i+1}/{embed_num})', color=discord.Color.green(), description=f'I found {result_num} players!'))
         embed[i].set_footer(text='❗ You need to clear the emoji and press it again when not on a server!')
         for j in range(j, result_num):
             embed[i].add_field(name=str(j+1)+'. '+response['api']['players'][j]['player_name'], value=f"`{response['api']['players'][j]['position']}` (id: {response['api']['players'][j]['player_id']})")
@@ -39,7 +42,7 @@ async def searchp(ctx, arg):
                 j += 1
                 break
     page = 0
-    sended = await ctx.send(embed=embed[page])
+    await sended.edit(embed=embed[0])
     await sended.add_reaction('⬅')
     await sended.add_reaction('➡')
     def checkemoji(reaction, user):
@@ -82,5 +85,5 @@ async def embed(ctx):
     embed.add_field(name='j', value='Success')
     await ctx.send(embed=embed)
 
-bot.run(os.environ['TOKEN'])
+bot.run(os.environ(['TOKEN']))
 bot.remove_command('help')
